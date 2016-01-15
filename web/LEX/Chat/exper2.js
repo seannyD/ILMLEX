@@ -208,9 +208,11 @@ function setStim(stimWindow,im){
 // TODO
 // iPhone browser displays 'empty image' box when there's no image, so change inner HTML or display property
 
-	if(im=="none"){
+	if(im=="none" || im==""){
 		document.getElementById(stimWindow).src = "";
-		document.getElementById(stimWindow).style.display = 'none';
+		console.log("STIM WINDOW "+stimWindow);
+			document.getElementById(stimWindow).style.display = 'none';
+
 	}
 	else{
 			document.getElementById(stimWindow).style.display = 'inLine';
@@ -220,6 +222,11 @@ function setStim(stimWindow,im){
 		}
 		else{
 			document.getElementById(stimWindow).src = ims[im];
+		}
+
+		if(stimWindow.substring(0,1)=="d"){
+			var holderDiv = stimWindow.substring(0,stimWindow.indexOf("Image"));
+			document.getElementById(holderDiv).style.display = 'none';
 		}
 		// show stim after a pause for loading
 		//window.setTimeout(function(){document.getElementById(stimWindow).style.display = 'inLine';},100);
@@ -1228,6 +1235,7 @@ function dictLoad(){
 		var x = i+1;
 		var dictRef = dictOrder[i]
 		document.getElementById("d"+x.toString()+"Image").src = ims[dictRef];
+		document.getElementById("d"+x.toString()).style.display = 'inLine';
 	}
 	// update dictionary list
 	for(var i=0; i< stimLabels.length; ++i){
@@ -1243,6 +1251,10 @@ function practiceDictLoad(){
 		for(var i=0; i< practice_ims.length; ++i){
 			var x = i+1;
 			document.getElementById("d"+x.toString()+"Image").src =practice_ims[i];
+		}
+		for(var i=practice_ims.length; i < 16;++i){
+			var x = i+1;
+			document.getElementById("d"+x.toString()).style.display = 'none';
 		}
 }
 
