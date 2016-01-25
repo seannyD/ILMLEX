@@ -8,9 +8,9 @@ $cycles_firstGen = array("Test","Test");
 // experiment structure for later generations generation
 $cycles_laterGen = array("PracticeTrain","Break","PracticeTest","Break","Train","Break","Test","Test");
 
-$cycles_LearnOnly= array("PracticeTrain","Break10","PracticeTrain","PracticeTest","Train","Break60","Train","Break60","Train","Break60","Train","BreakF","Test");
+$cycles_LearnOnly= array("PracticeTrain","Break10","PracticeTest","Train","Break60","Train","Break60","Train","Break60","Train","BreakF","Test");
 $cycles_ExpressOnly= array("PracticeTest","Test");
-$cycles_LearnAndExpress= array("PracticeTrain","Break10","PracticeTrain","PracticeTest","Train","Break60","Train","Break60","Train","Break60","Train","BreakF","Test");
+$cycles_LearnAndExpress= array("PracticeTrain","Break10","PracticeTest","Train","Break60","Train","Break60","Train","Break60","Train","BreakF","Test");
 
 // total number of stimuli
 $numStimuli = 16;
@@ -18,6 +18,8 @@ $numStimuli = 16;
 // number of rounds per cycle
 $numTrainingRoundsPerCycle = $bottleneck;
 $numTestRoundsPerCycle = $numStimuli;
+
+$partBreakLength = 20;
 
 
 function repeat_array2 ($arr,$desiredLength){
@@ -96,12 +98,12 @@ $header = "Round	Stimulus	Training	PartBreak	Message	RoleSwitch	Practice";
 $retX =$header."\n";
 
 foreach($cycles as $cy){
-	
-	
-	
+
+
+
 	if($cy=="Train"){
 	// training round
-	
+
 		$training="1";
 		$trAr = repeat_array2($bottleneck_stims,$numTrainingRoundsPerCycle);
 		shuffle($trAr);
@@ -112,16 +114,16 @@ foreach($cycles as $cy){
 			$retX = $retX."\n";
 			$roundNum += 1;
 		}
-	
+
 	}
-	else{	
-	
+	else{
+
 		if($cy=="Test"){
 		// test round
 			$training="0";
 			//$trAr = repeat_array2($stimList,$numTestRoundsPerCycle);
 			//shuffle($trAr);
-			
+
 			// the order of stimuli should be random, with each particpant beign the speaker for each stimuli
 			// To do this, make X lists with random order of each stimulus, then interleave them.
 			$trAr1 = range(0,$numStimuli-1);
@@ -140,10 +142,10 @@ foreach($cycles as $cy){
 				$retX = $retX."\n";
 				$roundNum += 1;
 			}
-		
+
 		}
 		else{
-		
+
 			if($cy=="PracticeTrain"){
 				// add practice rounds
 				foreach(range(-1,-4) as $pr){
@@ -154,7 +156,7 @@ foreach($cycles as $cy){
 					$retX = $retX."\n";
 					$roundNum += 1;
 				}
-			
+
 			}
 			else{
 				if($cy=="PracticeTest"){
@@ -171,9 +173,9 @@ foreach($cycles as $cy){
 					$retX = $retX.implode("\t",$thisLine);
 					$retX = $retX."\n";
 				}
-				else{			
+				else{
 					// break - message set in exper.js
-					$breakLength = 60;
+					$breakLength = $partBreakLength;
 					$breakMessage = " ";
 					if($cy=="Break10"){
 						$breakLength = 10;
@@ -185,7 +187,7 @@ foreach($cycles as $cy){
 					}
 				}
 		}
-	
+
 	}
 
 }

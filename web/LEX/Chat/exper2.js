@@ -23,8 +23,14 @@ if(learnOnlyExperiment){
 
 var testing_prompt = "Please type a word that will help the other player pick the correct picture from the set of six randomly picked options, then hit enter.";
 var testing_prompt_learnOnly = "Please type the word that you think is associated with the picture, then hit enter";
+
 var dictionary_instruction_text = "<b>Notebook</b> <br />Click to edit";
-var notebook_prompt = "Add the word to your notebook?";
+var notebook_prompt = "";//"Add the word to your notebook?";
+var autoAddToNotebook = false;
+var addToNotebook_text = "";
+if(autoAddToNotebook){
+	addToNotebook_text = "Replace this label in the notebook?";
+}
 
 var prompt_speaker = "Please type a word that will help the other player pick the correct shape from the set of six randomly generated options.";
 
@@ -93,6 +99,9 @@ var firstListenerEndPlayback = true;
 
 var dictionaryOrderIsRandom = true;
 var dictOrder = getStartingDictOrder();
+
+var learningAndExpressivityParticipantsMustClickToContinueAfterFeedback = true;
+//var signalVisibleDuringFeedback = true;
 
 //var experiment_filename = "";
 //var language_filename  = "";
@@ -204,11 +213,13 @@ function startExperiment(){
 
 function setStim(stimWindow,im){
 // im is number that indexes ims
-
+console.log(["SetStim",stimWindow,im]);
 // TODO
 // iPhone browser displays 'empty image' box when there's no image, so change inner HTML or display property
 
-	if(im=="none" || im==""){
+
+	// note, that "" == 0 returns 'true';
+	if(im=="none" || im===""){
 		document.getElementById(stimWindow).src = "";
 		console.log("STIM WINDOW "+stimWindow);
 			document.getElementById(stimWindow).style.display = 'none';
@@ -226,7 +237,8 @@ function setStim(stimWindow,im){
 
 		if(stimWindow.substring(0,1)=="d"){
 			var holderDiv = stimWindow.substring(0,stimWindow.indexOf("Image"));
-			document.getElementById(holderDiv).style.display = 'none';
+			console.log(["set stim ",holderDiv]);
+			document.getElementById(holderDiv).style.display = 'block';
 		}
 		// show stim after a pause for loading
 		//window.setTimeout(function(){document.getElementById(stimWindow).style.display = 'inLine';},100);
@@ -579,6 +591,7 @@ function testingSpeaker1(target){
 
 	waitingForInput = true;
 	setStim("leftStimTestImage",target);
+	showMe("leftStimTest");
 
 	// SW
 
@@ -676,9 +689,12 @@ function recieveExperDetails(mss){
 }
 
 function showContext(){
+	console.log("StimArray");
+	console.log(stimArray);
 			// make array
 			for(var i=0;i< stimArray.length;++i){
 				setStim("cont"+(i+1),stimArray[i]);
+
 				}
 			// wait for a bit so that images load
 			if(!learnOnlyExperiment){
@@ -808,7 +824,15 @@ function dofeedback(m){
 		// instead of calling nextRound(), we just use the 'readyToStart' funcitonality
 		// both participants have to check in before moving on.
 		if(!dictionaryExperiment || currentTarget<0){
-			window.setTimeout('chat.send("READYTOSTART", name, toUser);',3000);
+
+
+			if(!learnOnlyExperiment && learningAndExpressivityParticipantsMustClickToContinueAfterFeedback){
+			// optionally let expressivity only condition click 'continue' before moving on
+				showAddToNotebook();
+			} else{
+				window.setTimeout('chat.send("READYTOSTART", name, toUser);',3000);
+			}
+
 		}
 		else{
 		// show notebook div, which contains buttons that will trigger addToNotebook, which does the line above
@@ -825,7 +849,22 @@ function showAddToNotebook(){
 	document.getElementById("InfoPanel").innerHTML = notebook_prompt;
 	document.getElementById("AddToNotebook").style.zIndex="2";
 	document.getElementById("sendie").style.zIndex="1";
-	// show addtonotebook
+
+	document.getElementById("AddToNotebookTitle").innerHTML = addToNotebook_text;
+
+	if(autoAddToNotebook){
+		// show addtonotebook
+		document.getElementById("AddToNotebookNo").style.display = 'inline';
+		document.getElementById("AddToNotebookYes").style.display = 'inline';
+		document.getElementById("AddToNotebookContinue").style.display = 'none';
+
+	}  else {
+
+		document.getElementById("AddToNotebookNo").style.display = 'none';
+		document.getElementById("AddToNotebookYes").style.display = 'none';
+		document.getElementById("AddToNotebookContinue").style.display = 'inline';
+
+	}
 	document.getElementById("AddToNotebook").style.display = 'inline';
 }
 
@@ -1235,7 +1274,7 @@ function dictLoad(){
 		var x = i+1;
 		var dictRef = dictOrder[i]
 		document.getElementById("d"+x.toString()+"Image").src = ims[dictRef];
-		document.getElementById("d"+x.toString()).style.display = 'inLine';
+		document.getElementById("d"+x.toString()).style.display = 'block';
 	}
 	// update dictionary list
 	for(var i=0; i< stimLabels.length; ++i){

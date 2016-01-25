@@ -369,9 +369,10 @@
 	<div id="instructionsTitle" style="text-align: center; font-size: 30;"><b>Instructions</b></div>
 
 	<div id="AddToNotebook">
-		<div id="AddToNotebookTitle">Add to Notebook?</div>
+		<div id="AddToNotebookTitle"></div>
 		<button id="AddToNotebookYes" type="button" onclick="addToNotebook(true)">Yes</button>
  		<button id="AddToNotebookNo" type="button" onclick="addToNotebook(false)">No</button>
+    <button id="AddToNotebookContinue" type="button" onclick="addToNotebook(false)">Continue</button>
 	</div>
 
 	<div id="NextInst" onclick="nextScene()">
@@ -406,7 +407,7 @@
 	<div>
 </body>
 
-<script type="text/javascript" src="writeData.js"></script>  
+<script type="text/javascript" src="writeData.js"></script>
 <script type="text/javascript" src="exper2.js"></script>
 <script type="text/javascript" src="instructions.js"></script>
 
