@@ -17,6 +17,11 @@ var experiment_intro_text = "Click here to begin";
 var training_text = "Pay attention!";
 var break_text = "Take a rest!";
 
+var speaker_YourTargetMessage = "Your target:";
+var speaker_YourPartnerMessage = "Your partner chose:";
+var listener_YouChoseMessage = "You chose:";
+var listener_YourParnterMessage = "Your partner's target:";
+
 if(learnOnlyExperiment){
 	wait_for_partner_text = "";
 }
@@ -774,8 +779,8 @@ function dofeedback(m){
 				setStim("feedbackYouChoseImage",currentTarget);
 				setStim("feedbackTheyChoseImage",listenersResponse);
 
-				document.getElementById("feedbackYouChoseText").innerHTML = "Your target:"
-				document.getElementById("feedbackTheyChoseText").innerHTML = "Your partner chose:"
+				document.getElementById("feedbackYouChoseText").innerHTML = speaker_YourTargetMessage;
+				document.getElementById("feedbackTheyChoseText").innerHTML = speaker_YourPartnerMessage;
 
 			}
 			else{
@@ -785,8 +790,8 @@ function dofeedback(m){
 				setStim("feedbackYouChoseImage",listenersResponse);
 				setStim("feedbackTheyChoseImage",currentTarget);
 
-				document.getElementById("feedbackYouChoseText").innerHTML = "You chose:"
-				document.getElementById("feedbackTheyChoseText").innerHTML = "Your partner's target:"
+				document.getElementById("feedbackYouChoseText").innerHTML = listener_YouChoseMessage;
+				document.getElementById("feedbackTheyChoseText").innerHTML = listener_YourParnterMessage;
 
 
 			}

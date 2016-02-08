@@ -6,19 +6,19 @@
 	}
 
     $function = $_POST['function'];
-    
+
     $log = array();
-    
+
     switch($function) {
-    
+
     	 case('getState'):
          	$chatFile = '../../../private/LEX/chat_scratch/'.$_POST['chat_file'];
         	 if(file_exists($chatFile)){
                $lines = file($chatFile);
         	 }
-             $log['state'] = count($lines); 
-        	 break;	
-    	
+             $log['state'] = count($lines);
+        	 break;
+
     	 case('update'):
         	$state = $_POST['state'];
 			$chatFile = '../../../private/LEX/chat_scratch/'.$_POST['chat_file'];
@@ -29,7 +29,7 @@
         	 if($state == $count){
         		 $log['state'] = $state;
         		 $log['text'] = false;
-        		 
+
         		 }
         		 else{
         			 $text= array();
@@ -39,13 +39,13 @@
         				   if($line_num >= $state){
                          $text[] =  $line = str_replace("\n", "", $line);
         				   }
-         
+
                         }
-        			 $log['text'] = $text; 
+        			 $log['text'] = $text;
         		 }
-        	  
+
              break;
-    	 
+
     	 case('send'):
 		  $nickname = htmlentities(strip_tags($_POST['nickname']));
 		  $toUser = htmlentities(strip_tags($_POST['toUser']));
@@ -53,28 +53,28 @@
 		  $message = htmlentities(strip_tags($_POST['message']));
 		  $chatFile = '../../../private/LEX/chat_scratch/'.$_POST['chat_file'];
 		 if(($message) != "\n"){
-        	
+
 			 if(preg_match($reg_exUrl, $message, $url)) {
        			$message = preg_replace($reg_exUrl, '<a href="'.$url[0].'" target="_blank">'.$url[0].'</a>', $message);
-				} 
-			 
-        	
-        	 fwrite(fopen($chatFile, 'a'), $nickname . "@". $toUser. "%" . $message = str_replace("\n", " ", $message) . "\n"); 
+				}
+
+
+        	 fwrite(fopen($chatFile, 'a'), $nickname . "@". $toUser. "%" . $message = str_replace("\n", " ", $message) . "\n");
 		 }
         	 break;
-        	 
+
     	 case('send-results'):
     	 $fileName = htmlentities(strip_tags($_POST['filename']));
     	 $results = htmlentities(strip_tags($_POST['results']));
 		 if(strpos($fileName, '/') === FALSE){
-		 	
+
 		 	if(endsWith($fileName,'.lang')){
 				// language file, overwrite completely
-					$writeToFolder = '../../../private/LEX/experiments/';		 		
-					
+					$writeToFolder = '../../../private/LEX/experiments/';
+
 				 if(fwrite(fopen($writeToFolder . $fileName,'w'),$results."\n")){
 				 //if(fwrite(fopen('../../../ILM_HTML_Results/' . $fileName,'a'),$results."\n")){
-					 $log['state'] = "WRITTEN";	
+					 $log['state'] = "WRITTEN";
 					}
 				 else{
 					$log['state'] = "Not written";
@@ -85,7 +85,7 @@
 				 $writeToFolder = '../../../private/LEX/results/';
 				 if(fwrite(fopen($writeToFolder . $fileName,'a'),$results."\n")){
 				 //if(fwrite(fopen('../../../ILM_HTML_Results/' . $fileName,'a'),$results."\n")){
-					 $log['state'] = "WRITTEN";	
+					 $log['state'] = "WRITTEN";
 					}
 				 else{
 					$log['state'] = "Not written";
@@ -93,39 +93,39 @@
 		   		}
 		   	 }
     	 break;
-    	 
+
     	 case('get-experiment'):
     	     $fileName = htmlentities(strip_tags($_POST['filename']));
-    	     $filetype = htmlentities(strip_tags($_POST['filetype']));    	     
+    	     $filetype = htmlentities(strip_tags($_POST['filetype']));
 	      	if(strpos($fileName, '/') === FALSE){
 				if(file_exists('../../../private/LEX/experiments/'.$fileName)){
-				
+
 				  // $lines = file('experiments/'.$fileName);
 				   $log['contents'] = file_get_contents('../../../private/LEX/experiments/'.$fileName);
 				   $log['filetype'] = $filetype;
 				 }
         	 }
     	 break;
-    	 
-    	 
+
+
     	 case('wipe-chat-file'):
 	    	$chatFile = '../../../private/LEX/chat_scratch/'.$_POST['chat_file'];
     	 	fwrite(fopen($chatFile, 'w'),'');
     	 	//chmod($chatFile,0777);
     	 break;
-    	 
+
     	 case("get-results-file-list"):
   	 		$log['files'] = implode(",",scandir('../../../private/LEX/experiments/'));
     	 break;
-    	 
+
     	 case("send-partData"):
 	    	 $text = $_POST['text']."\n";
   	 		 fwrite(fopen("../../../private/LEX/partDetails/partDetails.txt",'a'),$text."\n");
   	 		// chmod($chatFile,0777);
     	 break;
-    	
+
     }
-    
+
     echo json_encode($log);
 
 ?>

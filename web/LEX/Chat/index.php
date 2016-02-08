@@ -61,15 +61,24 @@
     	var currentExperimentType = experParams["condition"];
 		// should the dictionary be available?
     	var dictionaryExperiment = false;
+      var learnOnlyExperiment = false;
+      var experPhase = "PH1";
 
     	if(experParams["condition"] == "Expressivity"){
     		dictionaryExperiment = true;
+        experPhase = "PH2";
     	}
-    	var learnOnlyExperiment = false;
     	if(experParams["condition"] == "Learnability"){
     		learnOnlyExperiment = true;
+        experPhase = "PH2";
     	}
-
+      if(experParams["condition"] == "Test Learnability (phase 1)"){
+        learnOnlyExperiment = true;
+      }
+      if(experParams["condition"] == "Test Learnability (phase 3)"){
+        learnOnlyExperiment = true;
+        experPhase = "PH3";
+      }
 
 		var generation = experParams["gen"];
 		var firstGeneration = generation == "New Generation";
@@ -126,11 +135,13 @@
 
 
 		var ex = "CH"+chain_num + "_G" + generation + "-" + mm+'_'+dd+'_'+hh+minmin+ss;
-        if(lex_experiment){
-        	var startFile = experParams["gen"];
-        	var altName = experParams["altName"]
-	        ex = altName + "_"+ startFile + "_CH"+chain_num + "-" + mm+'_'+dd+'_'+hh+minmin+ss;
-        }
+
+    if(lex_experiment){
+    	var startFile = experParams["gen"];
+    	//var altName = experParams["altName"];
+      //ex = altName + "_"+ startFile + "_CH"+chain_num + "-" + mm+'_'+dd+'_'+hh+minmin+ss;
+      ex = experPhase+"_"+ mm+'_'+dd+'_'+hh+minmin+ss + "_CH"+chain_num + "_parent-" + startFile;
+    }
 
 
       //  var experimentName = prompt("Enter the current experiment name", ex);
@@ -140,8 +151,6 @@
 		experiment_filename = ex;
 		var experimentName = ex;
 
-		console.log("CHAIN");
-		console.log(experParams["chain"]);
 
         // default name is 'Guest'
     	if (!name || name === ' ') {
