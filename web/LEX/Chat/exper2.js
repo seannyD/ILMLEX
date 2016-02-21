@@ -45,6 +45,7 @@ var correctImage = "images/tick.png"
 var incorrectImage = "images/cross.png"
 
 var cont_visible_after_choice = true;
+var cont_visible_to_speaker = false;
 
 // page to send participant to after the experiment has finished
 var debrief_URL = "http://correlation-machine.com/LEX/Debrief_Page.html";
@@ -543,7 +544,7 @@ function testingSpeaker1(target){
 		document.getElementById("cont").style.display = 'none';
 	}
 	else{
-		if(!learnOnlyExperiment){
+		if(!learnOnlyExperiment & cont_visible_to_speaker){
 			// context is not visible in learn only experiment
 			document.getElementById("cont").style.display = 'inline';
 		}
