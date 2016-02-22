@@ -4,13 +4,26 @@
 
 $bottleneck = 16; // size of bottleneck
 // experiment structure for first generation
-$cycles_firstGen = array("Test","Test");
+//$cycles_firstGen = array("Test","Test");
 // experiment structure for later generations generation
-$cycles_laterGen = array("PracticeTrain","Break","PracticeTest","Break","Train","Break","Test","Test");
+//$cycles_laterGen = array("PracticeTrain","Break","PracticeTest","Break","Train","Break","Test","Test");
 
-$cycles_LearnOnly= array("PracticeTrain","Break10","PracticeTest","Train","Break60","Train","Break60","Train","Break60","Train","BreakF","Test");
-$cycles_ExpressOnly= array("PracticeTest","Test");
-$cycles_LearnAndExpress= array("PracticeTrain","Break10","PracticeTest","Train","Break60","Train","Break60","Train","Break60","Train","BreakF","Test");
+//$cycles_LearnOnly= array("PracticeTrain","Break10","PracticeTest","Train","Break60","Train","Break60","Train","Break60","Train","BreakF","Test");
+//$cycles_ExpressOnly= array("PracticeTest","Test");
+//$cycles_LearnAndExpress= array("PracticeTrain","Break10","PracticeTest","Train","Break60","Train","Break60","Train","Break60","Train","BreakF","Test");
+
+
+// Test - each part is speaker for each meaning once
+// Train - see each meaning once
+// FinalTest - see each meaning once, ask what is the name (non-interactive)
+
+$cycles_LearnOnly= array(                                                     "Train","Break10","Train","Break10","Train","Break10","Train","BreakF","FinalTest");
+$cycles_ExpressOnly= array(                              "PracticeTest",                                          "Test" ,"Break10","Test" ,"BreakF","FinalTest");
+$cycles_LearnAndExpress= array("PracticeTrain","Break10","PracticeTest",      "Train","Break10","Train","Break10",                  "Test" ,"BreakF","FinalTest");
+
+
+$prepareForTestMessage = "__STARTTEST__"; // assigned in exper2.js
+$prepareForRealExperimentMessage = "__STARTREALEXPER__";
 
 // total number of stimuli
 $numStimuli = 16;
@@ -19,7 +32,7 @@ $numStimuli = 16;
 $numTrainingRoundsPerCycle = $bottleneck;
 $numTestRoundsPerCycle = $numStimuli;
 
-$partBreakLength = 20;
+$partBreakLength = 10;
 
 
 function repeat_array2 ($arr,$desiredLength){
@@ -115,16 +128,13 @@ foreach($cycles as $cy){
 			$roundNum += 1;
 		}
 
-	}
-	else{
-
-		if($cy=="Test"){
+	}	elseif($cy=="Test"){
 		// test round
 			$training="0";
 			//$trAr = repeat_array2($stimList,$numTestRoundsPerCycle);
 			//shuffle($trAr);
 
-			// the order of stimuli should be random, with each particpant beign the speaker for each stimuli
+			// the order of stimuli should be random, with each particpant being the speaker for each stimuli
 			// To do this, make X lists with random order of each stimulus, then interleave them.
 			$trAr1 = range(0,$numStimuli-1);
 			$trAr2 = range(0,$numStimuli-1);
@@ -134,7 +144,11 @@ foreach($cycles as $cy){
 			shuffle($trAr2);
 			shuffle($trAr3);
 			shuffle($trAr4);
-			$trAr = array_merge(array_zip_merge($trAr1,$trAr2),array_zip_merge($trAr3,$trAr4));
+			//$trAr = array_merge(array_zip_merge($trAr1,$trAr2),array_zip_merge($trAr3,$trAr4));
+
+			// new method: only do once through each stim for each participant
+			$trAr = array_zip_merge($trAr1,$trAr2);
+
 			foreach($trAr as $tr){
 				$stim = $tr;
 				$thisLine = array($roundNum,$stim,$training,$partBreak,$message,$RoleSwitch,$practice);
@@ -143,10 +157,26 @@ foreach($cycles as $cy){
 				$roundNum += 1;
 			}
 
-		}
-		else{
+		}	elseif($cy=="FinalTest"){
+			// test round
+				$training="2";
+				//$trAr = repeat_array2($stimList,$numTestRoundsPerCycle);
+				//shuffle($trAr);
 
-			if($cy=="PracticeTrain"){
+				// the order of stimuli should be random, with each particpant beign the speaker for each stimuli
+				// To do this, make X lists with random order of each stimulus, then interleave them.
+				$trAr = range(0,$numStimuli-1);
+				shuffle($trAr);
+
+				foreach($trAr as $tr){
+					$stim = $tr;
+					$thisLine = array($roundNum,$stim,$training,$partBreak,$message,$RoleSwitch,$practice);
+					$retX = $retX.implode("\t",$thisLine);
+					$retX = $retX."\n";
+					$roundNum += 1;
+				}
+
+			} elseif($cy=="PracticeTrain"){
 				// add practice rounds
 				foreach(range(-1,-4) as $pr){
 					$training="1";
@@ -157,9 +187,7 @@ foreach($cycles as $cy){
 					$roundNum += 1;
 				}
 
-			}
-			else{
-				if($cy=="PracticeTest"){
+		}	elseif($cy=="PracticeTest"){
 					foreach(range(-1,-4) as $pr){
 						$training="0";
 						$stim = $pr;
@@ -169,28 +197,22 @@ foreach($cycles as $cy){
 						$roundNum += 1;
 					}
 					// add break before real round
-					$thisLine = array($roundNum,"0","1","10","<br />Prepare for the real experiment!",$RoleSwitch,"1");
+					$thisLine = array($roundNum,"0","1","10",$prepareForRealExperimentMessage,$RoleSwitch,"1");
 					$retX = $retX.implode("\t",$thisLine);
 					$retX = $retX."\n";
-				}
-				else{
-					// break - message set in exper.js
-					$breakLength = $partBreakLength;
-					$breakMessage = " ";
-					if($cy=="Break10"){
-						$breakLength = 10;
-					}
-					if($cy=="BreakF"){
-						$breakMessage = "<br />Prepare for the Test!";
-					}
-					$retX = $retX.$roundNum."\t0\t0\t".$breakLength."\t".$breakMessage."\t0\t0\n";
-					}
-				}
+		}	else{
+						// break - message set in exper.js
+						$breakLength = $partBreakLength;
+						$breakMessage = " ";
+						if($cy=="Break10"){
+							$breakLength = 10;
+						}
+						if($cy=="BreakF"){
+							$breakMessage = $prepareForTestMessage;
+						}
+						$retX = $retX.$roundNum."\t0\t0\t".$breakLength."\t".$breakMessage."\t0\t0\n";
 		}
-
 	}
-
-}
 
 $writeToFolder = '../../../private/LEX/experiments/';
 fwrite(fopen($writeToFolder . $filename,'w'),$retX);

@@ -9,25 +9,28 @@ var sliderExperiment = false;  // if true, runs sound slider experiment.  If fal
 // var experiment_intro_text = "Press to start experiment";
 
 
-var click_to_continue_text = "Continue";
-var wait_for_partner_text = "Waiting for partner ...";
+var click_to_continue_text = "Volgende";//"Continue";
+var wait_for_partner_text = "Wachten...";//"Waiting for partner ...";
 var end_of_experiment_text = "You have finished the test!";
 var signal_too_short_text = "Dat was iets te kort. Probeer nog eens!";
-var experiment_intro_text = "Click here to begin";
-var training_text = "Pay attention!";
-var break_text = "Take a rest!";
+var experiment_intro_text = "Klik hier om te beginnen";//"Click here to begin";
+var training_text = "Let op!";//"Pay attention!";
+var break_text = "Neem even pauze!";//"Take a rest!";
 
-var speaker_YourTargetMessage = "Your target:";
-var speaker_YourPartnerMessage = "Your partner chose:";
-var listener_YouChoseMessage = "You chose:";
-var listener_YourParnterMessage = "Your partner's target:";
+var speaker_YourTargetMessage = "Je doel:";//"Your target:";
+var speaker_YourPartnerMessage = "Je partner heeft gekozen:";//"Your partner chose:";
+var listener_YouChoseMessage = "Je hebt gekozen:";//"You chose:";
+var listener_YourParnterMessage = "Het doel van je partner:";//"Your partner's target:";
+
+var prepareForRealExperimentMessage = "<br />Prepare for the real experiment!";
+var prepareForTestMessage = "<br />Prepare for the Test!";
 
 if(learnOnlyExperiment){
 	wait_for_partner_text = "";
 }
 
-var testing_prompt = "Please type a word that will help the other player pick the correct picture from the set of six randomly picked options, then hit enter.";
-var testing_prompt_learnOnly = "Please type the word that you think is associated with the picture, then hit enter";
+var testing_prompt = "Typ een code dat je partner helpt om het juiste buitenaardse wezen te kiezen. Druk dan op enter";//"Please type a word that will help the other player pick the correct picture from the set of six randomly picked options, then hit enter.";
+var testing_prompt_learnOnly = "Typ de code waarvan jij denkt dat die bij de afbeelding hoort. Druk dan op enter.";//"Please type the word that you think is associated with the picture, then hit enter";
 
 var dictionary_instruction_text = "<b>Notebook</b> <br />Click to edit";
 var notebook_prompt = "";//"Add the word to your notebook?";
@@ -37,9 +40,11 @@ if(autoAddToNotebook){
 	addToNotebook_text = "Replace this label in the notebook?";
 }
 
-var prompt_speaker = "Please type a word that will help the other player pick the correct shape from the set of six randomly generated options.";
+var prompt_speaker = "Typ een code dat je partner helpt om het juiste buitenaardse wezen te kiezen.";//"Please type a word that will help the other player pick the correct shape from the set of six randomly generated options.";
 
-var recieveSpeakersWord_text = "The other player has typed the word <br /><br /><br /><br />Click the shape that you think they are referring to";
+var recieveSpeakersWord_text = "Je partner heeft de code <br /><br /><br /><br /> getypt. Klik op de vorm waarvan jij denkt dat je partner die beschrijft."//"The other player has typed the word <br /><br /><br /><br />Click the shape that you think they are referring to";
+
+var invalidTextAlert = "Codes moeten tenminste één teken bevatten!\nGebruik alleen kleine letters, geen spaties, en geen Nederlands!";//"Text must have at least one character!\nLowercase letters only, no Spaces, no English!";
 
 var correctImage = "images/tick.png"
 var incorrectImage = "images/cross.png"
@@ -60,12 +65,14 @@ var currentTarget = 0; // index of ims
 var currentSentWord = "";
 var currentTrainingStimName = "";
 var stimArray = [];  // array of numbers indexing ims
+
+// images for meanings (overwritten from server)
 //var ims = ["images/SpikyRed.png","images/SpikyGreen.png","images/SpikyBlue.png","images/SpikyRedThick.png","images/SpikyGreenThick.png","images/SpikyBlueThick.png","images/RoundRed.png","images/RoundGreen.png","images/RoundBlue.png","images/RoundRedThick.png","images/RoundGreenThick.png","images/RoundBlueThick.png"];
 var ims = ["images/iconic/B01_mier_A.png","images/iconic/B02_mier_B.png","images/iconic/B03_spin_A.png","images/iconic/B04_spin_B.png","images/iconic/B05_tor_A.png","images/iconic/B06_tor_B.png","images/iconic/B07_krokodil_A.png","images/iconic/B08_krokodil_B.png","images/iconic/B09_slang_A.png","images/iconic/B10_slang_B.png","images/iconic/B11_walvis_A.png","images/iconic/B12_walvis_B.png"];
 var stimLabels = ['a','b','c','d','e','f','g','h','i','j','k','l'];
 
 var practice_ims = ["images/Test1.jpg","images/Test2.jpg","images/Test3.jpeg","images/Test4.jpg"];
-var practiceLabels = ["broc","pep","ber","ap","","","","","","","","","","","",""];
+var practiceLabels = ["broccoli","paprika","aardbei","appel","","","","","","","","","","","",""];
 var lastRoundWasPractice = true;  // set to false at the first real stimulus test
 
 var currentDictionary = [];
@@ -85,6 +92,9 @@ var PARTBREAK = 2;
 var MESSAGE = 3;
 var ROLESWITCH = 4;
 var PRACTICEIND = 5;
+
+var finalTestingPhase =false;
+var waitForPartnerInFinalTestPhase = false;
 
 var numberOfTestRounds = 0;
 
@@ -425,6 +435,7 @@ function nextRound(){
 		}
 		currentlyTraining = false;
 		numberCompletedTraining = 0;
+		finalTestingPhase =false;
 
 		if(currentRound == rounds.length){
 			// end of experiment
@@ -453,7 +464,7 @@ function nextRound(){
 				// do break
 				//doBreak(rounds[currentRound][PARTBREAK],rounds[currentRound][MESSAGE]);
 				// SW adjustment:
-				if(rounds[currentRound][MESSAGE]=="<br />Prepare for the real experiment!"){
+				if(rounds[currentRound][MESSAGE]==prepareForRealExperimentMessage){
 					score = 0;
 					document.getElementById("ScorePanel").innerHTML = "Score: "+score +"/"+numberOfTestRounds.toString();
 				}
@@ -473,12 +484,17 @@ function nextRound(){
 				}
 				}
 				else{
-				// testing
-					// switch role
-					if(rounds[currentRound][ROLESWITCH]=="1"){
-						roleSpeaker = ! roleSpeaker;
+					if(rounds[currentRound][TRAINING]=="0"){
+						// testing
+						// switch role
+						if(rounds[currentRound][ROLESWITCH]=="1"){
+							roleSpeaker = ! roleSpeaker;
+						}
+						testingRound(rounds[currentRound][STIMULUS]);
+					} else{
+						// final test
+						finalTestingRound(rounds[currentRound][STIMULUS]);
 					}
-					testingRound(rounds[currentRound][STIMULUS]);
 				}
 			}
 			currentRound += 1;
@@ -520,10 +536,42 @@ function testingRound(target){
 
 }
 
+function finalTestingRound(target){
+
+	finalTestingPhase = true;
+	roleSpeaker = true;
+	// set prompt
+	document.getElementById("InfoPanel").innerHTML = "What would you call this?";
+	currentTarget = target;
+	setStim("leftStimTestImage",target);
+	showMe("leftStimTest");
+	document.getElementById("typedInput").style.display = 'inline';
+	document.getElementById("sendie").focus();
+}
+
+function finalTestingRound_PartSendsResponse(text){
+	// (updateLastUsedStimLabels is already called)
+	//speakersWord = text;  // already done
+	listenersResponse = "-1";
+	stimArray = [];
+
+	hideMe("typedInput");
+	hideMe("leftStimTest");
+	// save data
+	saveData();
+	// move on to next round
+	if(waitForPartnerInFinalTestPhase){
+		window.setTimeout('chat.send("READYTOSTART", name, toUser);',50);
+	} else{
+		setTimeout("nextRound();",500);
+	}
+}
+
 function wait(){
 // TODO display waiting text
 
 	document.getElementById("InfoPanel").innerHTML = wait_for_partner_text;
+
 }
 
 
@@ -959,8 +1007,11 @@ function sendSpeakerMessage(text){
 	// also done on listener's side
 	updateLastUsedStimLabels(currentTarget,text);
 
-	if(learnOnlyExperiment){
-		// if it's only a learning experiment,
+	if(finalTestingPhase){
+		finalTestingRound_PartSendsResponse(text);
+
+	} else if(learnOnlyExperiment){
+		// if it's only a learning experiment, or if we're in final testing phase
 		// then skip straight to receiving message
 		setTimeout("recieveMessage("+currentTarget.toString()+");",1000)
 	}
@@ -1077,7 +1128,14 @@ function recieveData(contents,filetype){
 		var ix = lines[i].split("\t");
 		if(ix.length>1){
 			console.log([ix[trainingInd],parseInt(ix[stimulusInd]),parseInt(ix[partBreakInd]), ix[messageInd]]);
-			rounds.push([ix[trainingInd],parseInt(ix[stimulusInd]),parseInt(ix[partBreakInd]), ix[messageInd],ix[roleSwitch], ix[pracInd]]);
+			var mssgx = ix[messageInd];
+			if( mssgx == "__STARTREALEXPER__"){
+				mssgx = prepareForRealExperimentMessage;
+			}
+			if( mssgx == "__STARTTEST__"){
+				mssgx = prepareForTestMessage;
+			}
+			rounds.push([ix[trainingInd],parseInt(ix[stimulusInd]),parseInt(ix[partBreakInd]), mssgx,ix[roleSwitch], ix[pracInd]]);
 		}
 	}
 
@@ -1143,7 +1201,7 @@ function sendTextSignal(e){
 		}
 		else{
 			// TODO warning
-			alert("Text must have at least one character!\nLowercase letters only, no Spaces, no English!");
+			alert(invalidTextAlert);
 		}
 	}
 }
@@ -1439,3 +1497,13 @@ function getRandomDictOrder(){
 // 	'text" onclick="dictionaryTextClick('+ n +
 // 	')" onkeypress="dictionaryTextKey(event)" onblur="dictionaryTextKey2(event)"></div>';
 // }
+
+
+
+function showMe(x){
+	document.getElementById(x).style.display = 'inLine';
+}
+
+function hideMe(x){
+	document.getElementById(x).style.display = 'none';
+}
